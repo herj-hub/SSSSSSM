@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!-- 通过这个配置文件完成mybatis与数据库的连接 -->
+<configuration>
+	<!-- 引入 database.properties 文件-->
+	<properties resource="database.properties"/>
+	<!-- 配置mybatis的log实现为LOG4J -->
+	<settings>
+		<!-- 配置mybatis的log实现为LOG4J -->
+		<setting name="logImpl" value="LOG4J" />
+<!--PARTIAL 默认。部分映射。(如果写了，按照指定规则进行。
+							如果没写，并且不包含association，collection等复杂的映射情况
+								则按照java对象属性-数据库列一一对应。)
+	NONE	无，不自动映射
+	FULL	全部。（如果写了，按照指定规则进行。
+					如果没写，则按照java对象属性-数据库列一一对应。）
+-->
+<!--		<setting name="autoMappingBehavior" value="PARTIAL"/>-->
+<!--		<setting name="autoMappingBehavior" value="NONE"/>-->
+		<setting name="autoMappingBehavior" value="FULL"/>
+
+<!--	开启二级缓存-->
+		<setting name="cacheEnabled" value="true"/>
+
+	</settings>
+
+<!--	配置别名，用于简化mapper映射文件中 pojo类的名称-->
+	<typeAliases>
+<!--		<typeAlias type="com.smbms.pojo.User" alias="User"/>-->
+<!--		<typeAlias type="com.smbms.pojo.Provider" alias="Provider"/>-->
+			<!--配置包，该包下的所有的类都被简化，在Mapper映射文件中可以直接写类名-->
+			<package name="com.smbms.entity"/>
+	</typeAliases>
+	<environments default="development">
+		<environment id="development">
+			<!--配置事务管理，采用JDBC的事务管理  -->
+			<transactionManager type="JDBC"></transactionManager>
+			<!-- POOLED:mybatis自带的数据源，JNDI:基于tomcat的数据源 -->
+			<dataSource type="POOLED">
+				<property name="driver" value="${driver}"/>
+				<property name="url" value="${url}"/>
+				<property name="username" value="${username}"/>
+				<property name="password" value="${password}"/>
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<!-- 将mapper文件加入到配置文件中 -->
+	<mappers>
+<!--		类路径-->
+<!--		<mapper resource="com/smbms/dao/UserMapper.xml"/>-->
+<!--		<mapper resource="com/smbms/dao/ProviderMapper.xml"/>-->
+<!--		URL路径-->
+<!--		<mapper url="D:\Code-idea-projects\54\SSM\day01\src\com\smbms\dao\UserMapper.xml"/>-->
+<!--		<mapper url="D:\Code-idea-projects\54\SSM\day01\src\com\smbms\dao\ProviderMapper.xml"/>-->
+<!--		包路径-->
+
+		<package name="com.smbms.dao"/>
+	</mappers>
+
+</configuration>

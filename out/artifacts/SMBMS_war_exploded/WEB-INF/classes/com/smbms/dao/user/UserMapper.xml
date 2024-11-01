@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.smbms.dao.user.UserMapper">
+<!--    登录-->
+    <select id="login" resultType="User">
+        SELECT
+          *
+        FROM
+          smbms_user
+        WHERE userCode = #{userCode}
+          AND userPassword = #{userPassword}
+    </select>
+
+    <update id="updatePwd">
+        UPDATE
+          smbms_user
+        <trim prefix="set" suffixOverrides="," suffix="WHERE id = #{id}" >
+          userPassword = #{newPassword},
+          modifyBy = #{id1},
+          modifyDate = #{updateDate}
+        </trim>
+    </update>
+
+
+    <select id="countUser" resultType="int" >
+        SELECT
+        COUNT(1) AS num
+        FROM
+        smbms_user
+        <trim prefix="where" prefixOverrides="and">
+            <if test="username!=null and username!=''">
+                AND userName LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="userRole!=null and userRole!=0">
+                AND userRole = #{userRole}
+            </if>
+        </trim>
+    </select>
+
+<!--    <select id="queryUser" resultType="User" resultMap="UserWithRole">-->
+    <select id="queryUser" resultType="User" >
+        SELECT
+          user.*,
+--           role.id AS r_id,
+          role.`roleName` as userRoleName
+        FROM
+          smbms_user AS USER
+          INNER JOIN smbms_role AS role
+            ON user.`userRole` = role.`id`
+            <!--错误写法-->
+<!--        <trim prefix="where" prefixOverrides="and" suffix="ORDER BY user.`id` DESC LIMIT #{startNo}, #{pageSize}">-->
+        <trim prefix="where" prefixOverrides="and" >
+            <if test="username!=null and username!=''">
+                AND userName LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="userRole!=null and userRole!=0">
+                AND userRole = #{userRole}
+            </if>
+        </trim>
+        <!--TODO 把这句话写在trim或者where上面都是错误的 ,如果where里面什么都没有传，那么语句回变成 where order by ....，就会报错，所以要放到标签下面-->
+        ORDER BY user.`id` DESC LIMIT #{startNo},#{pageSize};
+    </select>
+
+<!--    <resultMap id="UserWithRole" type="User">-->
+<!--        <id property="id" column="id"/>-->
+
+<!--        <association property="role" javaType="Role">-->
+<!--            <id property="id" column="id"/>-->
+<!--        </association>-->
+
+<!--    </resultMap>-->
+
+
+
+    <select id="countByUserCode" parameterType="String" resultType="int">
+        SELECT
+          COUNT(1) AS num
+        FROM
+          smbms_user
+        WHERE userCode = #{userCode}
+    </select>
+
+    <update id="addUser" parameterType="User">
+        INSERT INTO `smbms`.`smbms_user` (
+          userCode,
+          userName,
+          userPassword,
+          gender,
+          birthday,
+          phone,
+          address,
+          userRole,
+          createdBy,
+          creationDate
+        )
+        VALUES
+          (
+            #{userCode},
+            #{userName},
+            #{userPassword},
+            #{gender},
+            #{birthday},
+            #{phone},
+            #{address},
+            #{userRole},
+            #{createdBy},
+            #{creationDate}
+          );
+    </update>
+
+    <update id="deleteUserById" parameterType="long">
+        DELETE FROM smbms_user WHERE id=#{id}
+    </update>
+
+<!--    <select id="queryById" resultType="User" parameterType="long" resultMap="UserWithRole">-->
+    <select id="queryById" resultType="User" parameterType="long" >
+        SELECT
+          user.*,
+--           role.`id` as r_id,
+          role.`roleName` as userRoleName
+        FROM
+          smbms_user as USER
+          INNER JOIN smbms_role as role
+            ON user.userRole = role.id
+        where user.id = #{id}
+    </select>
+
+    <update id="updateUser" parameterType="User">
+        UPDATE
+          smbms_user
+        <trim prefix="set" suffixOverrides="," suffix="WHERE id = #{id}">
+          userName =#{userName},
+          gender = #{gender},
+          birthday = #{birthday},
+          phone = #{phone},
+          address = #{address},
+          userRole = #{userRole},
+          modifyBy = #{modifyBy},
+          modifyDate = #{modifyDate},
+        </trim>
+    </update>
+
+
+</mapper>

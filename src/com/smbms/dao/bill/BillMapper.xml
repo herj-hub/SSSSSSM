@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.smbms.dao.bill.BillMapper">
+
+    <select id="countProvider" parameterType="int" resultType="int">
+        select count(1) as num from smbms_bill where providerId=#{providerId}
+    </select>
+
+    <select id="countBill" resultType="int">
+        SELECT
+          COUNT(1) AS num
+        FROM
+          smbms_bill
+        <trim prefix="where" prefixOverrides="and">
+            <if test="productName!=null and productName!=''">
+                AND productName LIKE CONCAT('%', #{productName}, '%')
+            </if>
+            <if test="providerId!=null and providerId!=0">
+                AND providerId LIKE CONCAT('%', #{providerId}, '%')
+            </if>
+            <if test="isPayment!=null and isPayment!=0">
+                AND isPayment LIKE CONCAT('%', #{isPayment}, '%')
+            </if>
+        </trim>
+    </select>
+
+<!--    <select id="queryBill" resultType="Bill" resultMap="BillWithProvider">-->
+    <select id="queryBill" resultType="Bill" >
+        SELECT
+          bill.*,
+          provider.proName as providerName
+        FROM
+          smbms_bill AS bill
+          INNER JOIN smbms_provider AS provider
+            ON bill.`providerId` = provider.`id`
+            <trim prefix="where" prefixOverrides="and">
+                <if test="productName!=null and productName!=''">
+                    AND productName LIKE CONCAT('%', #{productName}, '%')
+                </if>
+                <if test="providerId!=null and providerId!=0">
+                    AND providerId LIKE CONCAT('%', #{providerId}, '%')
+                </if>
+                <if test="isPayment!=null and isPayment!=0">
+                    AND isPayment LIKE CONCAT('%', #{isPayment}, '%')
+                </if>
+            </trim>
+            ORDER BY bill.id DESC
+            LIMIT #{startNo},#{pageSize}
+    </select>
+
+<!--    TODO 深究-->
+    <resultMap id="BillWithProvider" type="Bill">
+        <id property="id" column="id"/>
+
+        <association property="provider" javaType="Provider">
+        </association>
+    </resultMap>
+
+    <update id="addBill" parameterType="Bill">
+        INSERT INTO smbms_bill (
+          billCode,
+          productName,
+          productUnit,
+          productCount,
+          totalPrice,
+          isPayment,
+          createdBy,
+          creationDate,
+          providerId
+        )
+        VALUES
+          (
+          #{billCode},
+          #{productName},
+          #{productUnit},
+          #{productCount},
+          #{totalPrice},
+          #{isPayment},
+          #{createdBy},
+          #{creationDate},
+          #{providerId}
+          )
+    </update>
+
+    <update id="deleteBillId" parameterType="int">
+        delete from smbms_bill where id=#{id}
+    </update>
+
+    <select id="queryById" parameterType="int" resultType="Bill" resultMap="BillWithProvider">
+--  TODO 两种写法，55~60行不写的话，那么第93行的resultMap业应该删掉，否则会报错，如果加上resultMap，那么55~60行有必须有，没有的话同样会报错
+<!--    <select id="queryById" parameterType="int" resultType="Bill" >-->
+        SELECT
+          bill.*,
+          provider.id as p_id,
+--           provider.proName as providerName
+          provider.proName
+        FROM
+          smbms_bill AS bill
+          INNER JOIN smbms_provider AS provider
+            ON bill.`providerId` = provider.`id`
+        WHERE bill.id = #{id}
+    </select>
+
+    <update id="updateBill" parameterType="Bill">
+        UPDATE
+          smbms_bill
+        <trim prefix="set" suffixOverrides="," suffix="WHERE id = #{id}">
+          billCode = #{billCode},
+          productName = #{productName},
+          productUnit = #{productUnit},
+          productCount = #{productCount},
+          totalPrice = #{totalPrice},
+          isPayment = #{isPayment},
+          modifyBy = #{modifyBy},
+          modifyDate = #{modifyDate},
+        </trim>
+    </update>
+</mapper>

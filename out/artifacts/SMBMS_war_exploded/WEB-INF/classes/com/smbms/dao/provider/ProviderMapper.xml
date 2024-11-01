@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.smbms.dao.provider.ProviderMapper">
+
+    <select id="countProvider" resultType="int">
+        SELECT
+          COUNT(1) AS num
+        FROM
+          smbms_provider
+        <trim prefix="where" prefixOverrides="and">
+            <if test="proCode!=null and proCode!=''">
+                AND proCode LIKE CONCAT('%', #{proCode}, '%')
+            </if>
+            <if test="proName!=null and proName!=''">
+                AND proName LIKE CONCAT('%', #{proName}, '%')
+            </if>
+        </trim>
+    </select>
+
+
+    <select id="queryProvider" resultType="Provider">
+        SELECT
+          *
+        FROM
+          smbms_provider
+        <trim prefix="where" prefixOverrides="and">
+            <if test="proCode!=null and proCode!=''">
+                AND proCode LIKE CONCAT('%', #{proCode}, '%')
+            </if>
+            <if test="proName!=null and proName!=''">
+                AND proName LIKE CONCAT('%', #{proName}, '%')
+            </if>
+        </trim>
+        ORDER BY id DESC
+        LIMIT #{startNo},#{pageSize}
+    </select>
+
+    <update id="addProvider" parameterType="Provider">
+        INSERT INTO smbms_provider (
+          proCode,
+          proName,
+          proDesc,
+          proContact,
+          proPhone,
+          proAddress,
+          proFax,
+          createdBy,
+          creationDate
+        )
+        VALUES
+          (
+           #{proCode},
+           #{proName},
+           #{proDesc},
+           #{proContact},
+           #{proPhone},
+           #{proAddress},
+           #{proFax},
+           #{createdBy},
+           #{creationDate}
+           )
+    </update>
+
+    <update id="deleteProviderById" parameterType="int">
+        DELETE FROM smbms_provider WHERE id=#{id}
+    </update>
+
+    <select id="queryById" parameterType="int" resultType="Provider">
+        SELECT
+          *
+        FROM
+          smbms_provider
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateProvider" parameterType="Provider">
+        UPDATE
+          smbms_provider
+        <trim prefix="set" suffixOverrides="," suffix="WHERE id = #{id}">
+          proCode = #{proCode},
+          proName = #{proName},
+          proContact = #{proContact},
+          proPhone = #{proPhone},
+          proAddress = #{proAddress},
+          proFax = #{proFax},
+          proDesc = #{proDesc},
+          modifyBy = #{modifyBy},
+          modifyDate = #{modifyDate},
+        </trim>
+    </update>
+
+<!--//TODO 注意：这里的方法名要加个1，和上面的查询供应商列表方法区分，否则会报错-->
+    <select id="queryProvider1" resultType="Provider">
+        SELECT * FROM smbms_provider
+    </select>
+</mapper>
